@@ -23,3 +23,18 @@ docker run -it --rm \
     --security-opt seccomp=unconfined \
     rocm/vllm
     ```
+
+
+docker run -it \
+    --ipc=host \
+    --network=host \
+    --privileged \
+    --cap-add=CAP_SYS_ADMIN \
+    --device=/dev/kfd \
+    --device=/dev/dri \
+    --device=/dev/mem \
+    --group-add render \
+    --cap-add=SYS_PTRACE \
+    --security-opt seccomp=unconfined \
+        -v ~/.cache/huggingface:/root/.cache/huggingface \
+    rocm/vllm-dev:nightly
