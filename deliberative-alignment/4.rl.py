@@ -1,3 +1,4 @@
+from attr import dataclass
 from datasets import load_dataset
 from jinja2 import Environment, FileSystemLoader
 from trl import GRPOTrainer, GRPOConfig
@@ -6,7 +7,20 @@ import re
 import asyncio
 
 
-def reward_num_unique_letter(completions, **kwargs) -> list[float]:
+@dataclass
+class Config:
+    model: str = "Qwen/Qwen3-0.6B-SFT"
+    # dataset: str = "datasets/synthetic_scheming_sft.jsonl"
+    dataset: str = "trl-lib/ultrafeedback-prompt"
+    output_dir: str = "Qwen3-0.6B-GRPO"
+
+
+cfg = Config()
+
+dataset = load_dataset(cfg.dataset, split="train")
+
+
+def reward_num_unique_letters(completions, **kwargs) -> list[float]:
     completion_contents = [completion[0]["content"]
                            for completion in completions]
     rewards = [float(len(set(content))) for content in completion_contents]
@@ -61,4 +75,11 @@ async def score_completion(completion) -> int:
     return matches[0]
 
 
-def main():
+training_args = GRPOConfig(output_dir=cfg.output_dir)
+trainer = GRPOTrainer(
+    model=cfg.model,
+    reward_funcs=reward_num_unique_letters,
+    args=training_args,
+    train_dataset=dataset
+)
+trainer.train()

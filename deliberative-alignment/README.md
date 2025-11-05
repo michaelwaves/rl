@@ -5,6 +5,8 @@ This dataset has trajectories, in record["trace"] and scheming scores in metadat
 
 ## Deliberative Alignment
 
+![alt text](diagram.png "Preliminary pipeline")
+
 SFT + RL 
 https://arxiv.org/pdf/2412.16339
 Similar to constitutional AI, but the model actually sees the text of the spec
@@ -39,5 +41,7 @@ only did 3 samples of the above so far
 
 3.sft.py works with Rich's original synthetic_scheming.jsonl prompts and completions (426 samples). takes 1 hr on 2 L40s with Qwen 3 0.6B. The training data is in datasets/synthetic_scheming.jsonl
 
-4. RL tbd
+4. RL
+Currently works with default GRPO example on huggingface but takes 2000 h on 2x l40s for Qwen 0.6B
+Also took a stab at writing reward function (llm as judge)
 Reward function is tricky. Model as judge could be super slow or expensive with these long trajectories. Simon has an idea of distance to the ground truth label or asking it to produce a probability distribution over labels and then measure the difference to our ground truth distribution, not sure how this reward function would look like in practice
