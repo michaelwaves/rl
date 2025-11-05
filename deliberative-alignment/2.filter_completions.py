@@ -12,4 +12,5 @@ dataset = load_dataset(
     "json", data_files="datasets/synthetic_scheming.json", split="train")
 
 trajectory = dataset[0]["trace"]
+answer = dataset.
 client = AsyncOpenAI()
