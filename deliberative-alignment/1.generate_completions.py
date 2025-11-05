@@ -9,6 +9,7 @@ from tqdm.asyncio import tqdm
 @dataclass
 class Config:
     max_concurrency = 5
+    max_samples = 3
     output_file = "datasets/synthetic_scheming_sft_generated.jsonl"
 
 
@@ -27,6 +28,8 @@ trajectories = []
 with open("datasets/synthetic_scheming.jsonl", "r") as f:
     for record in f:
         trajectories.append(json.loads(record)["trace"])
+trajectories = trajectories[:cfg.max_samples]
+
 
 client = AsyncOpenAI()
 
@@ -55,17 +58,13 @@ async def process_trajectory(trajectory):
 
 
 async def main():
-    for trajectory in trajectories:
-        prompt = completion_template.render(
-            guidelines=guidelines, conversation=trajectory)
-        print(prompt)
-        completion = await client.responses.create(
-            input=prompt,
-            model="gpt-5-mini",
-            max_output_tokens=2000,
-            reasoning={"effort": 'medium'}
-        )
-        print(completion)
-        break
+    tasks = [process_trajectory(trajectory)
+             for trajectory in trajectories]
+    with open(cfg.output_file, 'a', encoding='utf-8') as f:
+        for result in tqdm(asyncio.as_completed(tasks), total=len(tasks), desc="Generating SFT data"):
+            res = await result
+            f.write(json.dumps(res, ensure_ascii=False)+"\n")
+
+    print(f"✅ Save {len(tasks)} prompt/completion pairs to {cfg.output_file}")
 
 asyncio.run(main())
