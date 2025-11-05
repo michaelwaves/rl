@@ -40,3 +40,4 @@ only did 3 samples of the above so far
 3.sft.py works with Rich's original synthetic_scheming.jsonl prompts and completions (426 samples). takes 1 hr on 2 L40s with Qwen 3 0.6B. The training data is in datasets/synthetic_scheming.jsonl
 
 4. RL tbd
+Reward function is tricky. Model as judge could be super slow or expensive with these long trajectories. Simon has an idea of distance to the ground truth label or asking it to produce a probability distribution over labels and then measure the difference to our ground truth distribution, not sure how this reward function would look like in practice
